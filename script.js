@@ -1,0 +1,193 @@
+const mazeContainer = document.getElementById('maze-container');
+const winScreen = document.getElementById('win-screen');
+const startScreen = document.getElementById('start-screen');
+const gameWrapper = document.getElementById('game-wrapper');
+const winMessage = document.getElementById('win-message');
+const princesaImage = document.getElementById('princesa-image');
+
+const ROWS = 10;
+const COLS = 10;
+
+let maze;
+let playerPosition = { x: 0, y: 0 }; // 👈 Rapunzel inicia en (0,0)
+let playerPose = 0;
+let facingDirection = 1; // 1 derecha, -1 izquierda
+let trail = []; // ← aquí guardamos las posiciones donde pasó
+
+function generateMaze(rows, cols) {
+    let newMaze = Array.from({ length: rows }, () => Array(cols).fill(1));
+    const stack = [];
+    const start = { x: 0, y: 0 }; // 👈 entrada en (0,0)
+
+    newMaze[start.y][start.x] = 0;
+    stack.push(start);
+
+    while (stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = [];
+
+        const directions = [[0, -2], [0, 2], [-2, 0], [2, 0]];
+        for (const [dx, dy] of directions) {
+            const nx = current.x + dx;
+            const ny = current.y + dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && newMaze[ny][nx] === 1) {
+                neighbors.push({ x: nx, y: ny, dx, dy });
+            }
+        }
+
+        if (neighbors.length > 0) {
+            const { x: nx, y: ny, dx, dy } = neighbors[Math.floor(Math.random() * neighbors.length)];
+            newMaze[ny][nx] = 0;
+            newMaze[current.y + dy / 2][current.x + dx / 2] = 0;
+            stack.push({ x: nx, y: ny });
+        } else {
+            stack.pop();
+        }
+    }
+
+    // Marca inicio y meta
+    newMaze[0][0] = 2; // 👈 posición de inicio de Rapunzel
+    newMaze[rows - 1][cols - 1] = 3;
+
+    // Asegura camino hacia la meta
+    if (newMaze[rows - 2][cols - 1] === 1 && newMaze[rows - 1][cols - 2] === 1) {
+        newMaze[rows - 2][cols - 1] = 0;
+    }
+
+    return newMaze;
+}
+
+function renderMaze() {
+    mazeContainer.innerHTML = '';
+    for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            if (maze[y][x] === 1) cell.classList.add('wall');
+            if (maze[y][x] === 3) cell.classList.add('goal');
+
+            // 🌸 si la celda está en el rastro, poner flor
+            if (trail.some(pos => pos.x === x && pos.y === y)) {
+                cell.classList.add('flower-trail');
+            }
+
+            // 👱‍♀️ dibujar jugador
+            if (y === playerPosition.y && x === playerPosition.x) {
+                cell.classList.add('player');
+                if (playerPose % 2 === 0) {
+                    cell.style.backgroundImage = "url('rapunzel1.png')";
+                    cell.style.backgroundSize = "cover";
+                } else {
+                    cell.style.backgroundImage = "url('rapunzel2.png')";
+                    cell.style.backgroundSize = "contain";
+                }
+                cell.style.transform = facingDirection === -1 ? "scaleX(-1)" : "scaleX(1)";
+            }
+
+            mazeContainer.appendChild(cell);
+        }
+    }
+}
+
+function movePlayer(dx, dy) {
+    const newX = playerPosition.x + dx;
+    const newY = playerPosition.y + dy;
+
+    if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
+        // antes de moverse, deja una flor 🌸
+        trail.push({ x: playerPosition.x, y: playerPosition.y });
+
+        playerPosition.x = newX;
+        playerPosition.y = newY;
+        playerPose++;
+
+        if (maze[newY][newX] === 3) {
+            gameWrapper.classList.add('hidden');
+            winScreen.classList.remove('hidden');
+        }
+    }
+}
+
+function startGame() {
+    startScreen.classList.add('disintegrating');
+
+    setTimeout(() => {
+        startScreen.classList.add('hidden');
+        startScreen.classList.remove('disintegrating');
+        winScreen.classList.add('hidden');
+        gameWrapper.classList.remove('hidden');
+
+        // Reset win screen elements
+        winMessage.classList.remove('hidden', 'fade-out');
+        princesaImage.classList.add('hidden');
+        princesaImage.classList.remove('fade-in');
+
+        maze = generateMaze(ROWS, COLS);
+        playerPosition = { x: 0, y: 0 }; // 👈 posición inicial asegurada
+        playerPose = 0;
+        facingDirection = 1;
+        trail = []; // limpiar rastro
+        renderMaze();
+    }, 1500);
+}
+
+function initGame() {
+    startScreen.removeEventListener('click', initGame);
+    startGame();
+}
+
+startScreen.addEventListener('click', initGame);
+
+winScreen.addEventListener('click', () => {
+    winMessage.classList.add('fade-out');
+    setTimeout(() => {
+        winMessage.classList.add('hidden');
+        princesaImage.classList.remove('hidden');
+        princesaImage.classList.add('fade-in');
+    }, 1000); // wait for fade-out to finish
+});
+
+princesaImage.addEventListener('click', () => {
+    location.reload(); // 🔁 recarga toda la página
+});
+
+
+// Teclado (PC)
+document.addEventListener('keydown', (e) => {
+    if (!startScreen.classList.contains('hidden') || !winScreen.classList.contains('hidden')) return;
+
+    switch (e.key) {
+        case 'ArrowUp': movePlayer(0, -1); break;
+        case 'ArrowDown': movePlayer(0, 1); break;
+        case 'ArrowLeft': facingDirection = -1; movePlayer(-1, 0); break;
+        case 'ArrowRight': facingDirection = 1; movePlayer(1, 0); break;
+    }
+    renderMaze();
+});
+
+// Movimiento táctil (móvil)
+let startX = 0, startY = 0, endX = 0, endY = 0;
+
+mazeContainer.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+}, { passive: true });
+
+mazeContainer.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    endX = touch.clientX;
+    endY = touch.clientY;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 30) { facingDirection = 1; movePlayer(1, 0); }
+        else if (dx < -30) { facingDirection = -1; movePlayer(-1, 0); }
+    } else {
+        if (dy > 30) movePlayer(0, 1);
+        else if (dy < -30) movePlayer(0, -1);
+    }
+    renderMaze();
+}, { passive: true });

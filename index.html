@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laberinto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="start-screen">
+        <img src="portada.jpg" alt="Portada">
+    </div>
+
+    <div id="game-wrapper" class="hidden">
+        <img id="tower" src="torre.png" alt="Tower">
+        <div id="maze-container"></div>
+    </div>
+
+    <div id="controls" class="hidden">
+        <div id="up"></div>
+        <div id="down"></div>
+        <div id="left"></div>
+        <div id="right"></div>
+    </div>
+
+   <div id="win-screen" class="hidden" style="font-family: 'VT323', monospace; text-align: center;">
+    <div id="win-message">
+        <h1>
+        Valheska, tu viaje terminó en la corona,<br>
+        pero el brillo ya era tuyo desde el primer paso...<br>
+        porque las verdaderas princesas no se coronan, nacen así ✨👑
+        </h1>
+        <div class="decorations" style="font-size: 2em; margin: 10px 0;">
+            <span class="star">✨</span>
+            <span class="star">⭐</span>
+            <span class="flower">🌸</span>
+            <span class="star">🌟</span>
+            <span class="flower">🌺</span>
+            <span class="star">💫</span>
+            <span class="flower">🌷</span>
+        </div>
+    </div>
+    <img id="princesa-image" src="princesa.jpg" alt="Princesa" class="hidden">
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

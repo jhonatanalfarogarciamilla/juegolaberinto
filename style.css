@@ -1,0 +1,183 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+#maze-container {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    grid-template-rows: repeat(10, 40px);
+    border: 2px solid #333;
+    background-image: url('grass.jpg');
+    background-size: cover;
+    position: relative;
+    z-index: 1;
+}
+
+.cell {
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.wall {
+    background-image: url('arbusto.png');
+    background-size: cover;
+}
+
+.player {
+    background-image: url('rapunzel1.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.goal {
+    background-image: url('corona.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* 🌸 FLORES DEL RASTRO */
+.flower-trail {
+    background-image: url('flor.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: bloom 0.6s ease;
+}
+
+@keyframes bloom {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Pantalla de victoria */
+#win-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: pink;
+    color: white;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.5em;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.decorations {
+    margin-top: 20px;
+}
+
+.star, .flower {
+    display: inline-block;
+    animation: twinkle 1.5s infinite;
+    font-size: 1.5em;
+    margin: 0 10px;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+#win-screen:not(.hidden) {
+    display: flex;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Pantalla inicial */
+#start-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    cursor: pointer;
+    z-index: 20;
+    transition: opacity 0.8s ease;
+}
+
+#start-screen img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* animación de desintegración */
+@keyframes disintegrate {
+    0% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+    50% { opacity: 0.5; transform: scale(1.2) rotate(5deg); filter: blur(2px); }
+    100% { opacity: 0; transform: scale(0.5) rotate(-10deg); filter: blur(10px); visibility: hidden; }
+}
+
+#start-screen.disintegrating {
+    animation: disintegrate 1.5s forwards;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    #win-screen h1 { font-size: 1.2em; }
+    #win-screen p { font-size: 1em; }
+}
+
+#game-wrapper {
+    position: relative;
+}
+
+#tower {
+    position: absolute;
+    width: 40px;
+    height: 80px;
+    top: -80px;
+    left: 0;
+    z-index: 2;
+}
+
+#princesa-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: auto;
+    cursor: pointer;
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+.fade-out {
+    animation: fadeOut 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
