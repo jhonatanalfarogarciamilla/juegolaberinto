@@ -9,15 +9,15 @@ const ROWS = 10;
 const COLS = 10;
 
 let maze;
-let playerPosition = { x: 0, y: 0 }; // 👈 Rapunzel inicia en (0,0)
+let playerPosition = { x: 0, y: 0 };
 let playerPose = 0;
-let facingDirection = 1; // 1 derecha, -1 izquierda
-let trail = []; // ← aquí guardamos las posiciones donde pasó
+let facingDirection = 1;
+let trail = [];
 
 function generateMaze(rows, cols) {
     let newMaze = Array.from({ length: rows }, () => Array(cols).fill(1));
     const stack = [];
-    const start = { x: 0, y: 0 }; // 👈 entrada en (0,0)
+    const start = { x: 0, y: 0 };
 
     newMaze[start.y][start.x] = 0;
     stack.push(start);
@@ -25,8 +25,8 @@ function generateMaze(rows, cols) {
     while (stack.length > 0) {
         const current = stack[stack.length - 1];
         const neighbors = [];
-
         const directions = [[0, -2], [0, 2], [-2, 0], [2, 0]];
+
         for (const [dx, dy] of directions) {
             const nx = current.x + dx;
             const ny = current.y + dy;
@@ -45,11 +45,9 @@ function generateMaze(rows, cols) {
         }
     }
 
-    // Marca inicio y meta
-    newMaze[0][0] = 2; // 👈 posición de inicio de Rapunzel
+    newMaze[0][0] = 2;
     newMaze[rows - 1][cols - 1] = 3;
 
-    // Asegura camino hacia la meta
     if (newMaze[rows - 2][cols - 1] === 1 && newMaze[rows - 1][cols - 2] === 1) {
         newMaze[rows - 2][cols - 1] = 0;
     }
@@ -66,21 +64,14 @@ function renderMaze() {
             if (maze[y][x] === 1) cell.classList.add('wall');
             if (maze[y][x] === 3) cell.classList.add('goal');
 
-            // 🌸 si la celda está en el rastro, poner flor
             if (trail.some(pos => pos.x === x && pos.y === y)) {
                 cell.classList.add('flower-trail');
             }
 
-            // 👱‍♀️ dibujar jugador
             if (y === playerPosition.y && x === playerPosition.x) {
                 cell.classList.add('player');
-                if (playerPose % 2 === 0) {
-                    cell.style.backgroundImage = "url('rapunzel1.png')";
-                    cell.style.backgroundSize = "cover";
-                } else {
-                    cell.style.backgroundImage = "url('rapunzel2.png')";
-                    cell.style.backgroundSize = "contain";
-                }
+                cell.style.backgroundImage = playerPose % 2 === 0 ? "url('rapunzel1.png')" : "url('rapunzel2.png')";
+                cell.style.backgroundSize = "cover";
                 cell.style.transform = facingDirection === -1 ? "scaleX(-1)" : "scaleX(1)";
             }
 
@@ -94,9 +85,7 @@ function movePlayer(dx, dy) {
     const newY = playerPosition.y + dy;
 
     if (newX >= 0 && newX < COLS && newY >= 0 && newY < ROWS && maze[newY][newX] !== 1) {
-        // antes de moverse, deja una flor 🌸
         trail.push({ x: playerPosition.x, y: playerPosition.y });
-
         playerPosition.x = newX;
         playerPosition.y = newY;
         playerPose++;
@@ -106,27 +95,26 @@ function movePlayer(dx, dy) {
             winScreen.classList.remove('hidden');
         }
     }
+    renderMaze();
 }
 
 function startGame() {
     startScreen.classList.add('disintegrating');
-
     setTimeout(() => {
         startScreen.classList.add('hidden');
         startScreen.classList.remove('disintegrating');
         winScreen.classList.add('hidden');
         gameWrapper.classList.remove('hidden');
 
-        // Reset win screen elements
         winMessage.classList.remove('hidden', 'fade-out');
         princesaImage.classList.add('hidden');
         princesaImage.classList.remove('fade-in');
 
         maze = generateMaze(ROWS, COLS);
-        playerPosition = { x: 0, y: 0 }; // 👈 posición inicial asegurada
+        playerPosition = { x: 0, y: 0 };
         playerPose = 0;
         facingDirection = 1;
-        trail = []; // limpiar rastro
+        trail = [];
         renderMaze();
     }, 1500);
 }
@@ -144,50 +132,26 @@ winScreen.addEventListener('click', () => {
         winMessage.classList.add('hidden');
         princesaImage.classList.remove('hidden');
         princesaImage.classList.add('fade-in');
-    }, 1000); // wait for fade-out to finish
+    }, 1000);
 });
 
 princesaImage.addEventListener('click', () => {
-    location.reload(); // 🔁 recarga toda la página
+    location.reload();
 });
 
+// 🎮 Botones de control
+document.getElementById('up').addEventListener('click', () => movePlayer(0, -1));
+document.getElementById('down').addEventListener('click', () => movePlayer(0, 1));
+document.getElementById('left').addEventListener('click', () => { facingDirection = -1; movePlayer(-1, 0); });
+document.getElementById('right').addEventListener('click', () => { facingDirection = 1; movePlayer(1, 0); });
 
-// Teclado (PC)
+// Teclado
 document.addEventListener('keydown', (e) => {
     if (!startScreen.classList.contains('hidden') || !winScreen.classList.contains('hidden')) return;
-
     switch (e.key) {
         case 'ArrowUp': movePlayer(0, -1); break;
         case 'ArrowDown': movePlayer(0, 1); break;
         case 'ArrowLeft': facingDirection = -1; movePlayer(-1, 0); break;
         case 'ArrowRight': facingDirection = 1; movePlayer(1, 0); break;
     }
-    renderMaze();
 });
-
-// Movimiento táctil (móvil)
-let startX = 0, startY = 0, endX = 0, endY = 0;
-
-mazeContainer.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-}, { passive: true });
-
-mazeContainer.addEventListener('touchend', (e) => {
-    const touch = e.changedTouches[0];
-    endX = touch.clientX;
-    endY = touch.clientY;
-
-    const dx = endX - startX;
-    const dy = endY - startY;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 30) { facingDirection = 1; movePlayer(1, 0); }
-        else if (dx < -30) { facingDirection = -1; movePlayer(-1, 0); }
-    } else {
-        if (dy > 30) movePlayer(0, 1);
-        else if (dy < -30) movePlayer(0, -1);
-    }
-    renderMaze();
-}, { passive: true });
