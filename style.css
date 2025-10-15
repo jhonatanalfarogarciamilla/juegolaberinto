@@ -181,3 +181,47 @@ body {
     from { opacity: 1; }
     to { opacity: 0; }
 }
+
+/* 🎮 Botones de control (centrados arriba del laberinto) */
+/* 🎮 Botones de control (centrados arriba del laberinto, estilo pixelado) */
+#controls {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    z-index: 5;
+}
+
+#controls .row {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+    border-radius: 0; /* Bordes cuadrados tipo pixel */
+    border: 3px solid #000;
+    background-color: #fff;
+    cursor: pointer;
+    font-family: 'VT323', monospace; /* Letra tipo retro */
+    transition: transform 0.1s ease;
+    image-rendering: pixelated; /* 🔥 efecto pixel */
+    box-shadow: 3px 3px 0 #000; /* sombra tipo bloque */
+}
+
+.control-btn:hover {
+    background-color: #f7e26b; /* tono amarillo tipo videojuego */
+}
+
+.control-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #000;
+    background-color: #d9b310;
+}
